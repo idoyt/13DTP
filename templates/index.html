@@ -5,14 +5,14 @@
     <title></title>
   </head>
   <body>
-    <form class="post" action="index.html" method="post">
+    <form class="post" method="post">
       <input type="text" placeholder="name" name="name">
-      <input type="text" plachodler="post content" name="post">
+      <input type="text" placeholder="post content" name="post">
       <input type="submit" value="Submit">
     </form>
     {% for post in posts %}
     <div class="message">
-      {{post[1] + ': ' post[2]}}
+      {{post.name + ': ' + post.content}}
     {% endfor %}
     </div>
   </body>

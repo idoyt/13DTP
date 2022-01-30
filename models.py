@@ -1,15 +1,7 @@
-from os import path
-from app import db, app
-
-# GET - GET, POST - ADD, PUT - UPDATE,  DELETE - DELETE
-
+from app import db
 
 class Post(db.Model):
-    __tablename__ = ''
-
+    __tablename__ = 'Post'
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     name = db.Column(db.Text, nullable=False)
-    post = db.Column(db.Text, nullable=False)
-
-
-
+    content = db.Column(db.Text, nullable=False)
