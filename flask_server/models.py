@@ -4,77 +4,15 @@ from app import db
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 from flask_login import UserMixin
-
-class Chat_Line(db.Model):
-    __tablename__ = 'Chat_line'
-    id = db.Column(db.Integer, primary_key=True, nullable=False)
-    user_id = db.Column(db.Integer, ForeignKey('User.id'), nullable=False)
-    chat_id = db.Column(db.Integer, ForeignKey('Class.id'), nullable=False)
-    reply_to = db.Column(db.Integer, nullable=False)
-    created_at = db.Column(db.Datetime, nullable=False)
-    updated_at = db.Column(db.Datetime, nullable=False)
-
-
-class File(db.Model):
-    __tablename__ = 'File'
-    id = db.Column(db.Integer, primary_key=True, nullable=False)
-    chat_line_id = db.Column(db.Integer, ForeignKey('Chat_line.id'), nullable=False)
-    name = db.Column(db.Text, nullable=False)
-    path = db.Column(db.Text, nullable=False)
-
-
-class Message(db.Model):
-    __tablename__ = 'Message'
-    id = db.Column(db.Integer, primary_key=True, nullable=False)
-    chat_line_id = db.Column(db.Integer, ForeignKey('Chat_line.id'), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-
-
-class Seen(db.Model):
-    __tablename__ = 'Seen'
-    id = db.Column(db.Integer, primary_key=True, nullable=False)
-    user_id = db.Column(db.Integer, ForeignKey('User.id'), nullable=False)
-    chat_id = db.Column(db.Integer, ForeignKey('Class.id'), nullable=False)
-    seen = db.Column(db.Text, nullable=False)
-
-class Mention(db.Model):
-    __tablename__ = 'Mention'
-    id = db.Column(db.Integer, primary_key=True, nullable=False)
-    user_id = db.Column(db.Integer, ForeignKey('User.id'), nullable=False)
-    chat_id = db.Column(db.Integer, ForeignKey('Class.id'), nullable=False)
-
-
-class Chat(db.Model):
-    __tablename__ = 'Chat'
-    id = db.Column(db.Integer, primary_key=True, nullable=False)
-    user_id = db.Column(db.Integer, ForeignKey('User.id'), nullable=False)
-    name = db.Column(db.Text, nullable=False)
-    image = db.Column(db.Text)
-    created_at = db.Column(db.Datetime, nullable=False)
-
-
-class ChatUser(db.Model):
-    __tablename__ = 'ChatUser'
-    user_id = db.Column(db.Integer, ForeignKey('User.id'), nullable=False)
-    class_id = db.Column(db.Integer, ForeignKey('Chat.id'), nullable=False)
-
-
-class User(db.Model):
-    __tablename__ = 'User'
-    id = db.Column(db.Integer, primary_key=True, nullable=False)
-    auth_id = db.Column(db.Integer, ForeignKey('Auth.id'), nullable=False)
-    username = db.Column(db.Text, nullable=False)
-    image = db.Column(db.Text)
-    created_at = db.Column(db.Datetime, nullable=False)
-
+from datetime import datetime
 
 class Auth(UserMixin, db.Model):
     __tablename__ = 'Auth'
     id = db.Column(db.Integer, primary_key=True, nullable=False)
-    permissions = db.Column(db.Integer, nullable=False)
-    username = db.Column(db.Text, nullable=False)
+    login = db.Column(db.Text, nullable=False, unique=True)
     email = db.Column(db.Text, nullable=False, unique=True)
-    password = db.Column(db.Text, nullable=False, unique=True)
+    password = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default = datetime.utcnow, nullable=False)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -82,6 +20,68 @@ class Auth(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    def __repr__(self):
+        return '<User{}>'.format(self.username)
+
+
+class User(db.Model):
+    __tablename__ = 'User'
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    auth_id = db.Column(db.Integer, ForeignKey('Auth.id'), nullable=False)
+    username = db.Column(db.Text, nullable=False)
+    image = db.Column(db.Text, nullable=False, default = "static/images/user_profile/default.jpg")
+
+class Chat(db.Model):
+    __tablename__ = 'Chat'
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    user_id = db.Column(db.Integer, ForeignKey('User.id'), nullable=False)
+    name = db.Column(db.Text, nullable=False)
+    image = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default = datetime.utcnow, nullable=False)
+
+class Chat_Line(db.Model):
+    __tablename__ = 'Chat_Line'
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    user_id = db.Column(db.Integer, ForeignKey('User.id'), nullable=False)
+    chat_id = db.Column(db.Integer, ForeignKey('Chat.id'), nullable=False)
+    reply_to = db.Column(db.Integer, nullable=False)
+    created_at = db.Column(db.DateTime, default = datetime.utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default = datetime.utcnow, nullable=False)
+
+
+class File(db.Model):
+    __tablename__ = 'File'
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    Chat_Line_id = db.Column(db.Integer, ForeignKey('Chat_Line.id'), nullable=False)
+    name = db.Column(db.Text, nullable=False)
+    path = db.Column(db.Text, nullable=False)
+
+
+class Message(db.Model):
+    __tablename__ = 'Message'
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    Chat_Line_id = db.Column(db.Integer, ForeignKey('Chat_Line.id'), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+
+
+class Seen(db.Model):
+    __tablename__ = 'Seen'
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    user_id = db.Column(db.Integer, ForeignKey('User.id'), nullable=False)
+    chat_id = db.Column(db.Integer, ForeignKey('Chat.id'), nullable=False)
+    seen = db.Column(db.Boolean, nullable=False)
+
+class Mention(db.Model):
+    __tablename__ = 'Mention'
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    user_id = db.Column(db.Integer, ForeignKey('User.id'), nullable=False)
+    Chat_Line_id = db.Column(db.Integer, ForeignKey('Chat_Line.id'), nullable=False)
+
+class ChatUser(db.Model):
+    __tablename__ = 'ChatUser'
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    user_id = db.Column(db.Integer, ForeignKey('User.id'), nullable=False)
+    class_id = db.Column(db.Integer, ForeignKey('Chat.id'), nullable=False)
 
 class Friendship(db.Model):
     __tablename__ = 'Friendship'
@@ -93,4 +93,3 @@ class Friendship(db.Model):
     pending2 = db.Column(db.Boolean, nullable=False)
     blocked1 = db.Column(db.Boolean, nullable=False)
     blocked2 = db.Column(db.Boolean, nullable=False)
-
