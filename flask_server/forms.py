@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField
 from wtforms.validators import DataRequired, ValidationError, EqualTo, Email, Length
 
 class LoginForm(FlaskForm):
@@ -16,3 +16,13 @@ class RegistrationForm(FlaskForm):
     password2 = PasswordField(
         'Repeat Password', validators=[DataRequired(), EqualTo('password'), Length(max=36)], render_kw={"placeholder": "Confirm Password"})
     submit = SubmitField('Register')
+
+class CreateChatForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired(), Length(max=256)], render_kw={"placeholder": "name"})
+    image = StringField('Image', validators=[Length(max=256)], render_kw={"placeholder": "Image"})
+    submit = SubmitField('Create Chat')
+
+class SendMessageForm(FlaskForm):
+    content = StringField('Username', validators=[DataRequired(), Length(max=256)], render_kw={"placeholder": "message"})
+    reply_to = IntegerField('reply_to', validators=[Length(max=256)], render_kw={"placeholder": "reply_to"})
+    submit = SubmitField('Send Message')

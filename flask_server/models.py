@@ -1,18 +1,19 @@
 from unicodedata import name
 from sqlalchemy import ForeignKey
 from app import db
-from werkzeug.security import generate_password_hash
-from werkzeug.security import check_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from datetime import datetime
 
-class Auth(UserMixin, db.Model):
-    __tablename__ = 'Auth'
+class User(UserMixin, db.Model):
+    __tablename__ = 'User'
     id = db.Column(db.Integer, primary_key=True, nullable=False)
-    login = db.Column(db.Text, nullable=False, unique=True)
+    username = db.Column(db.Text, nullable=False)
+    image = db.Column(db.Text, nullable=False, default = "default.jpg")
     email = db.Column(db.Text, nullable=False, unique=True)
-    password = db.Column(db.Text, nullable=False)
+    password_hash = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default = datetime.utcnow, nullable=False)
+    last_login = db.Column(db.DateTime, default = datetime.utcnow, nullable=False)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -22,14 +23,6 @@ class Auth(UserMixin, db.Model):
 
     def __repr__(self):
         return '<User{}>'.format(self.username)
-
-
-class User(db.Model):
-    __tablename__ = 'User'
-    id = db.Column(db.Integer, primary_key=True, nullable=False)
-    auth_id = db.Column(db.Integer, ForeignKey('Auth.id'), nullable=False)
-    username = db.Column(db.Text, nullable=False)
-    image = db.Column(db.Text, nullable=False, default = "static/images/user_profile/default.jpg")
 
 class Chat(db.Model):
     __tablename__ = 'Chat'
@@ -44,7 +37,7 @@ class Chat_Line(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     user_id = db.Column(db.Integer, ForeignKey('User.id'), nullable=False)
     chat_id = db.Column(db.Integer, ForeignKey('Chat.id'), nullable=False)
-    reply_to = db.Column(db.Integer, nullable=False)
+    reply_to = db.Column(db.Integer)
     created_at = db.Column(db.DateTime, default = datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default = datetime.utcnow, nullable=False)
 
@@ -93,3 +86,5 @@ class Friendship(db.Model):
     pending2 = db.Column(db.Boolean, nullable=False)
     blocked1 = db.Column(db.Boolean, nullable=False)
     blocked2 = db.Column(db.Boolean, nullable=False)
+
+db.create_all()
